@@ -4,7 +4,7 @@
 <header class="workspace-heading">
   <div>
     <span class="eyebrow">STUDENT WORKSPACE</span>
-    <h1>Good morning, <%= user.name.split(' ')[0] %>.</h1>
+    <h1><span data-greeting>Good morning</span>, <%= user.name.split(' ')[0] %>.</h1>
     <p class="page-lead">Your next opportunity is closer than you think.</p>
   </div>
   <a class="outline-btn inline-btn" href="/student/profile">Complete profile ↗</a>
@@ -89,4 +89,22 @@
   <% } %>
 </section>
 </main>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const greeting = document.querySelector('[data-greeting]');
+    if (greeting) { 
+      const now = new Date();
+      const minutes = now.getHours() * 60 + now.getMinutes();
+      greeting.textContent = minutes >= 240 && minutes <= 719
+        ? 'Good morning'
+        : minutes <= 840
+          ? 'Good noon'
+          : minutes <= 1020
+            ? 'Good afternoon'
+            : minutes <= 1260
+              ? 'Good evening'
+              : 'Good night';
+    }
+  });
+</script>
 <%- include('../partials/foot') %>
