@@ -1,0 +1,92 @@
+<%- include('../partials/head', { title: 'College overview' }) %><%- include('../partials/nav', { active: 'dashboard' }) %>
+<main class="workspace">
+<%- include('../partials/flash', { notice }) %>
+<header class="workspace-heading">
+  <div>
+    <span class="eyebrow">COLLEGE WORKSPACE</span>
+    <h1>Skill intelligence.</h1>
+    <p class="page-lead">See exactly where your students stand against real industry demand — and where employer feedback says they landed.</p>
+  </div>
+  <a class="outline-btn inline-btn" href="/college/students">View students ↗</a>
+</header>
+
+<% const biggestGap = skillMatrix.find(row => row.gapPercent > 0); %>
+<div class="stats-row">
+  <div class="stat-card"><span>TOTAL ENROLLED STUDENTS</span><strong><%= students.length %></strong><small>Profiles connected</small></div>
+  <div class="stat-card"><span>TOTAL OPEN JOBS</span><strong><%= jobs.length %></strong><small>Powering the demand column</small></div>
+  <div class="stat-card"><span>ACTIVE PLACEMENTS</span><strong><%= activePlacements %></strong><small>Students currently hired</small></div>
+  <div class="stat-card warm">
+    <span>TOP INSTITUTIONAL SKILL GAP</span>
+    <strong><%= biggestGap ? biggestGap.skill : '—' %></strong>
+    <span class="metric-badge"><%= biggestGap ? biggestGap.gapPercent + '% gap' : 'No gap detected' %></span>
+  </div>
+</div>
+
+<section class="content-card table-card">
+  <div class="card-heading">
+    <div><span class="eyebrow">INDUSTRY VS. READINESS</span><h2>Institutional skill-gap matrix</h2></div>
+  </div>
+  <% if (!skillMatrix.length) { %>
+    <p class="empty-state">Once your students add skills and companies post open roles, this table shows exactly where the gaps are.</p>
+  <% } else { %>
+  <table class="skill-matrix-table">
+    <thead><tr><th>Skill</th><th>Required demand</th><th>Preferred demand</th><th>Coverage</th><th>Weighted readiness</th><th>Gap</th><th>Insight</th></tr></thead>
+    <tbody>
+      <% skillMatrix.slice(0, 12).forEach(row => { %>
+      <tr class="<%= row.insight === 'Critical gap' ? 'critical-row' : '' %>">
+        <td><strong><%= row.skill %></strong></td>
+        <td><span class="matrix-bar"><i style="width:<%= row.requiredDemandPercent %>%"></i></span><small><%= row.requiredDemandPercent %>%</small></td>
+        <td><small><%= row.preferredDemandPercent %>%</small></td>
+        <td><span class="matrix-bar readiness"><i style="width:<%= row.coveragePercent %>%"></i></span><small><%= row.coveragePercent %>%</small></td>
+        <td><small><%= row.weightedReadiness %>%</small></td>
+        <td><%= row.gapPercent %>%</td>
+        <td><span class="application-status <%= row.insight === 'Critical gap' ? 'declined' : (row.insight === 'Moderate gap' ? 'interview' : 'progress') %>"><%= row.insight %></span></td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  <% } %>
+</section>
+
+<section class="content-card">
+  <div class="card-heading"><div><span class="eyebrow">TURN INSIGHT INTO ACTION</span><h2>Recommended action</h2></div></div>
+  <% if (biggestGap) { %><p class="gap-narrative"><strong>Priority gap: <%= biggestGap.skill %></strong> — required industry demand is <%= biggestGap.requiredDemandPercent %>% while weighted readiness is <%= biggestGap.weightedReadiness %>%. Recommended action: run a targeted <%= biggestGap.skill %> workshop and re-check readiness after completion.</p><% } else { %><p class="empty-state">No macro skill gap is currently large enough to trigger an intervention.</p><% } %>
+</section>
+
+<section class="content-card">
+  <div class="card-heading">
+    <div><span class="eyebrow">FROM REAL INTERNSHIPS</span><h2>Employer competency feedback rollup</h2></div>
+  </div>
+  <% const competencyLabels = [['technicalSkills', 'Technical skills'], ['problemSolving', 'Problem solving'], ['communication', 'Communication'], ['practicalApplication', 'Practical application']]; %>
+  <% if (!feedbackCount) { %>
+    <p class="empty-state">Once your students complete internships and companies leave structured feedback, institutional averages will appear here.</p>
+  <% } else { %>
+  <div class="competency-ratings">
+    <% competencyLabels.forEach(([key, label]) => { %>
+    <% if (competencyAverages[key] !== null) { %>
+    <div class="rating-row">
+      <span class="rating-label"><%= label %></span>
+      <span class="rating-bar"><i style="width:<%= (competencyAverages[key] / 5) * 100 %>%"></i></span>
+      <span class="rating-score"><%= competencyAverages[key].toFixed(1) %> / 5.0</span>
+    </div>
+    <% } %>
+    <% }) %>
+  </div>
+  <% } %>
+</section>
+
+<section class="content-card table-card">
+  <div class="card-heading">
+    <div><span class="eyebrow">STUDENT SIGNALS</span><h2>Recent student profiles</h2></div>
+    <a class="text-btn" href="/college/students">See all ↗</a>
+  </div>
+  <% students.slice(0, 5).forEach(student => { %>
+  <div class="table-row">
+    <div><strong><%= student.name %></strong><small><%= student.profile?.skills?.map(skill => skill.name).join(' · ') || 'Skills not added yet' %></small></div>
+    <span class="application-status progress"><%= student.profile?.skills?.length || 0 %> skills</span>
+  </div>
+  <% }) %>
+  <% if (!students.length) { %><p class="empty-state">Students who select your institution during signup will appear here.</p><% } %>
+</section>
+</main>
+<%- include('../partials/foot') %>

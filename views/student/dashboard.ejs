@@ -1,0 +1,92 @@
+<%- include('../partials/head', { title: 'Student overview' }) %><%- include('../partials/nav', { active: 'dashboard' }) %>
+<main class="workspace">
+<%- include('../partials/flash', { notice }) %>
+<header class="workspace-heading">
+  <div>
+    <span class="eyebrow">STUDENT WORKSPACE</span>
+    <h1>Good morning, <%= user.name.split(' ')[0] %>.</h1>
+    <p class="page-lead">Your next opportunity is closer than you think.</p>
+  </div>
+  <a class="outline-btn inline-btn" href="/student/profile">Complete profile ↗</a>
+</header>
+
+<div class="stats-row">
+  <div class="stat-card"><span>AVERAGE MATCH</span><strong><%= averageMatch %><small>%</small></strong><small>Across your top open roles</small></div>
+  <div class="stat-card"><span>OPEN ROLES</span><strong><%= jobs.length %></strong><small>Matched opportunities</small></div>
+  <div class="stat-card"><span>APPLICATIONS</span><strong><%= applications.length %></strong><small>In your pipeline</small></div>
+  <div class="stat-card">
+    <span>ENROLLED SKILLS</span>
+    <strong><%= user.profile?.skills?.length || 0 %></strong>
+    <small>Powering your match score</small>
+  </div>
+</div>
+
+<div class="dashboard-grid">
+<section class="content-card">
+  <div class="card-heading"><div><span class="eyebrow">YOUR SIGNAL</span><h2>Skill intelligence</h2></div><a class="text-btn" href="/student/profile">Edit profile ↗</a></div>
+  <div class="profile-snapshot">
+    <div class="donut"><div><strong><%= user.profile?.skills?.length || 0 %></strong><small>skills</small></div></div>
+    <div>
+      <p class="muted-copy"><%= user.profile?.bio || 'Add your education, projects, and skills so companies can understand your potential.' %></p>
+      <div class="tag-list"><% (user.profile?.skills || []).forEach(skill => { %><span><%= skill.name %></span><% }) %></div>
+    </div>
+  </div>
+  <% if (bestMatch) { %>
+  <div class="best-match-callout">
+    <span class="match-badge"><%= bestMatch.gap.matchScore %>% match</span>
+    <strong class="best-match-title"><%= bestMatch.job.title %></strong>
+    <p class="muted-copy"><%= bestMatch.gap.narrative %></p>
+    <a class="text-btn" href="/student/opportunities">See all opportunities ↗</a>
+  </div>
+  <% } else { %>
+    <p class="empty-state">Add skills to your profile to see how you match against open roles.</p>
+  <% } %>
+</section>
+
+<section class="content-card">
+  <div class="card-heading"><div><span class="eyebrow">IN MOTION</span><h2>Recent applications</h2></div><a class="text-btn" href="/student/feedback">Feedback</a></div>
+  <% if (!applications.length) { %>
+    <p class="empty-state">No applications yet. Explore roles matched to your skills.</p>
+    <a class="full-link" href="/student/opportunities">Browse opportunities <span>↗</span></a>
+  <% } else { applications.forEach(application => { %>
+  <div class="application">
+    <div><strong><%= application.job.title %></strong><small><%= application.job.location || 'Remote' %></small></div>
+    <span class="application-status <%= application.status === 'selected' ? 'progress' : (application.status === 'rejected' ? 'declined' : 'interview') %>"><%= application.status %></span>
+  </div>
+  <% }) } %>
+</section>
+</div>
+
+<section class="content-card skill-gap-summary-card">
+  <div class="card-heading"><div><span class="eyebrow">WHAT TO LEARN NEXT</span><h2>Target skill gap summary</h2></div></div>
+  <div class="summary-grid">
+    <div class="summary-item">
+      <span class="eyebrow">ENROLLED SKILLS</span>
+      <strong><%= user.profile?.skills?.length || 0 %></strong>
+    </div>
+    <div class="summary-item">
+      <span class="eyebrow">TOP TARGET SKILL GAP</span>
+      <strong><%= topSkillGap ? topSkillGap[0] : '—' %></strong>
+      <% if (topSkillGap) { %><span class="metric-badge">Missing from <%= topSkillGap[1] %> open role<%= topSkillGap[1] === 1 ? '' : 's' %></span><% } else { %><small>No gaps detected against open roles</small><% } %>
+    </div>
+    <div class="summary-item">
+      <span class="eyebrow">APPLICATION STATUS</span>
+      <div class="status-counters">
+        <span class="application-status interview">Applied · <%= statusCounts.applied %></span>
+        <span class="application-status interview">In review · <%= statusCounts.inReview %></span>
+        <span class="application-status progress">Selected · <%= statusCounts.selected %></span>
+      </div>
+    </div>
+  </div>
+  <% if (latestFeedback) { %>
+  <div class="gap-narrative">
+    <strong><%= latestFeedback.application?.job?.title || 'Recent application' %>:</strong>
+    <%= latestFeedback.decision === 'selected' ? 'Selected' : 'Not selected this time' %> — <%= latestFeedback.reason %>.
+    <a class="text-btn" href="/student/feedback">View full feedback ↗</a>
+  </div>
+  <% } else { %>
+    <p class="empty-state">No employer feedback yet — it will appear here once a company reviews your application.</p>
+  <% } %>
+</section>
+</main>
+<%- include('../partials/foot') %>

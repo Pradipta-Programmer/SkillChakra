@@ -1,0 +1,21 @@
+<%- include('../partials/head', { title: 'Post opportunity' }) %><%- include('../partials/nav', { active: 'new-job' }) %>
+<main class="workspace narrow">
+<header class="workspace-heading"><div><span class="eyebrow">CREATE A ROLE</span><h1>Post an opportunity.</h1><p class="page-lead">Describe the work clearly so the right candidates can find it.</p></div></header>
+<form class="content-card profile-form" action="/company/jobs" method="post">
+  <div class="form-grid">
+    <label>Role title<input name="title" placeholder="Frontend Engineer Intern" required></label>
+    <label>Location<input name="location" placeholder="Bengaluru / Remote"></label>
+    <label>Employment type<select name="employmentType"><option>Internship</option><option>Full-time</option><option>Contract</option></select></label>
+    <label>Minimum CGPA<input type="number" name="minimumCgpa" min="0" max="10" step="0.01" value="0"></label>
+  </div>
+  <label>Required skills <small>comma separated — candidates are scored against these first</small>
+    <input name="requiredSkills" placeholder="React.js, TypeScript, Git" required>
+  </label>
+  <label>Preferred skills <small>optional, comma separated — nice-to-have skills that give a candidate a small match boost</small>
+    <input name="preferredSkills" placeholder="Next.js, Figma">
+  </label>
+  <label>Role description<textarea name="description" rows="7" placeholder="What will this person own? What will they learn?" required></textarea></label>
+  <button class="primary-btn inline-btn" type="submit">Publish role <span>↗</span></button>
+</form>
+</main>
+<%- include('../partials/foot') %>

@@ -1,0 +1,36 @@
+<%- include('../partials/head', { title: 'Feedback' }) %><%- include('../partials/nav', { active: 'feedback' }) %>
+<main class="workspace narrow">
+<header class="workspace-heading"><div><span class="eyebrow">LEARN FROM EVERY OUTCOME</span><h1>Application feedback</h1><p class="page-lead">Clear signals from companies help you focus your next improvement.</p></div></header>
+<section class="content-card feedback-list">
+<% if (!feedback.length) { %><p class="empty-state">Feedback will appear here as companies review your applications.</p><% } %>
+<% const competencyLabels = [['technicalSkills', 'Technical skills'], ['problemSolving', 'Problem solving'], ['communication', 'Communication'], ['practicalApplication', 'Practical application']]; %>
+<% feedback.forEach(item => { %>
+<% const hasRatings = competencyLabels.some(([key]) => item.competencies?.[key]); %>
+<article class="feedback-item">
+  <div>
+    <span class="application-status <%= item.type === 'internship_evaluation' ? 'progress' : (item.decision === 'selected' ? 'progress' : 'declined') %>"><%= item.type === 'internship_evaluation' ? 'Internship evaluation' : item.decision %></span>
+    <h2><%= item.application?.job?.title || 'Application' %></h2>
+    <small><%= item.company?.name || 'Company' %> · <%= new Date(item.createdAt).toLocaleDateString() %></small>
+  </div>
+  <div>
+    <strong><%= item.reason %></strong>
+    <p><%= item.feedback || 'No additional notes were shared.' %></p>
+    <% if (hasRatings) { %>
+    <div class="competency-ratings">
+      <% competencyLabels.forEach(([key, label]) => { %>
+      <% if (item.competencies[key]) { %>
+      <div class="rating-row">
+        <span class="rating-label"><%= label %></span>
+        <span class="rating-bar"><i style="width:<%= (item.competencies[key] / 5) * 100 %>%"></i></span>
+        <span class="rating-score"><%= item.competencies[key] %>/5</span>
+      </div>
+      <% } %>
+      <% }) %>
+    </div>
+    <% } %>
+  </div>
+</article>
+<% }) %>
+</section>
+</main>
+<%- include('../partials/foot') %>

@@ -1,0 +1,49 @@
+<%- include('../partials/head', { title: 'Opportunities' }) %><%- include('../partials/nav', { active: 'opportunities' }) %>
+<main class="workspace">
+<%- include('../partials/flash', { notice }) %>
+<header class="workspace-heading">
+  <div>
+    <span class="eyebrow">DISCOVER YOUR NEXT MOVE</span>
+    <h1>Opportunities</h1>
+    <p class="page-lead">Ranked by how closely your skills match each role, with the exact gap shown before you apply.</p>
+  </div>
+</header>
+
+<div class="opportunity-list">
+<% if (!ranked.length) { %>
+  <section class="content-card empty-state">Companies have not posted opportunities yet.</section>
+<% } %>
+<% ranked.forEach(({ job, gap }) => { %>
+<article class="content-card opportunity-card-full">
+  <div class="opportunity-card-top">
+    <div>
+      <span class="eyebrow"><%= job.employmentType %> · <%= job.location || 'Flexible' %></span>
+      <h2><%= job.title %></h2>
+      <p><strong><%= job.company?.name || 'Company' %></strong> · <%= job.description %></p>
+    </div>
+    <span class="match-badge"><%= gap.matchScore %>% Skill Fit</span>
+  </div>
+
+  <div class="skill-gap-summary">
+    <div class="gap-legend"><span><i class="dot-matched"></i>Matched</span><span><i class="dot-partial"></i>Beginner level</span><span><i class="dot-missing"></i>Missing</span></div>
+    <div class="tag-list">
+      <% gap.matched.forEach(skill => { %><span class="matched">✓ <%= skill %></span><% }) %>
+      <% gap.partial.forEach(skill => { %><span class="partial">△ <%= skill %></span><% }) %>
+      <% gap.missing.forEach(skill => { %><span class="missing">✗ <%= skill %></span><% }) %>
+    </div>
+    <% if (gap.compensating.length) { %>
+    <div class="tag-list"><% gap.compensating.forEach((skill, index) => { %><span class="compensating" title="<%= gap.compensationReasons[index] || "Related competency detected" %>">+ <%= skill %> · Compensating Skill Detected</span><% }) %></div>
+    <% } %>
+    <p class="gap-narrative"><%= gap.narrative %></p>
+  </div>
+
+  <% if (applied.has(String(job.id))) { %>
+    <span class="application-status progress">Applied</span>
+  <% } else { %>
+    <form method="post" action="/student/opportunities/<%= job.id %>/apply"><button class="primary-btn inline-btn" type="submit">Signal Interest <span>↗</span></button></form>
+  <% } %>
+</article>
+<% }) %>
+</div>
+</main>
+<%- include('../partials/foot') %>

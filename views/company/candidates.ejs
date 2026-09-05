@@ -1,0 +1,89 @@
+<%- include('../partials/head', { title: 'Candidates' }) %><%- include('../partials/nav', { active: 'candidates' }) %>
+<main class="workspace">
+<%- include('../partials/flash', { notice }) %>
+<header class="workspace-heading">
+  <div>
+    <span class="eyebrow">EVIDENCE OVER GUESSWORK</span>
+    <h1>Candidate review</h1>
+    <p class="page-lead">Screen by skill fit, decide, and leave feedback that helps people grow.</p>
+  </div>
+</header>
+
+<div class="candidate-list">
+<% if (!candidates.length) { %>
+  <section class="content-card empty-state">Applications will appear here when students apply to your roles.</section>
+<% } %>
+<% candidates.forEach(({ application, gap, feedback }) => { %>
+<article class="content-card candidate-card">
+  <div class="candidate-header">
+    <div class="avatar large"><%= application.student.name.slice(0, 2).toUpperCase() %></div>
+    <div>
+      <h2><%= application.student.name %></h2>
+      <p><%= application.job.title %> · <%= application.student.profile?.college || 'College not added' %></p>
+    </div>
+    <span class="match-badge"><%= gap.matchScore %>% Skill Compatibility</span>
+  </div>
+
+  <div class="skill-gap-summary">
+    <div class="gap-legend"><span><i class="dot-matched"></i>Matched</span><span><i class="dot-partial"></i>Developing</span><span><i class="dot-missing"></i>Missing</span><span><i class="dot-partial"></i>Compensating</span></div>
+    <div class="tag-list">
+      <% gap.matched.forEach(skill => { %><span class="matched">✓ <%= skill %></span><% }) %>
+      <% gap.missing.forEach(skill => { %><span class="missing">✗ <%= skill %></span><% }) %>
+      <% gap.partial.forEach(skill => { %><span class="partial">△ <%= skill %> · Developing</span><% }) %>
+      <% gap.preferredMatched.forEach(skill => { %><span class="partial">+ <%= skill %> · Preferred</span><% }) %>
+      <% gap.compensating.forEach((skill, index) => { %><span class="compensating" title="<%= gap.compensationReasons[index] || 'Related competency detected' %>">+ <%= skill %> · Compensating Skill Detected</span><% }) %>
+    </div>
+    <p class="gap-narrative"><%= gap.narrative %></p>
+  </div>
+
+  <% if (application.status === 'applied') { %>
+    <form class="decision-form" action="/company/applications/<%= application.id %>/decision" method="post">
+      <select name="decision"><option value="selected">Hire for internship</option><option value="rejected">Reject candidate</option></select>
+      <input name="reason" required placeholder="Decision reason, e.g. Strong React experience">
+      <input name="feedback" placeholder="Specific feedback for the candidate">
+      <button class="primary-btn inline-btn" type="submit">Record hiring decision <span>↗</span></button>
+    </form>
+  <% } else { %>
+    <span class="application-status <%= application.status === 'selected' ? 'progress' : (application.status === 'rejected' ? 'declined' : 'interview') %>"><%= application.status %></span>
+  <% } %>
+
+  <% if (application.status === 'selected' && internship) { %>
+  <div class="gap-narrative"><strong>Internship:</strong> <%= internship.status %><% if (internship.startDate) { %> · started <%= new Date(internship.startDate).toLocaleDateString() %><% } %></div>
+  <% if (internship.status === 'active') { %><form action="/company/internships/<%= internship.id %>/complete" method="post"><button class="outline-btn inline-btn" type="submit">Mark internship completed <span>↗</span></button></form><% } %>
+  <% if (internship.status === 'completed') { %>
+  <details class="feedback-panel">
+    <summary><%= feedback?.competencies?.technicalSkills ? 'Update employer evaluation' : 'Add employer evaluation' %> ▾</summary>
+    <form action="/company/applications/<%= application.id %>/feedback" method="post">
+      <div class="rating-grid">
+        <label>Technical skills
+          <select name="technicalSkills">
+            <% for (let score = 1; score <= 5; score++) { %><option value="<%= score %>" <%= feedback?.competencies?.technicalSkills === score ? 'selected' : '' %>><%= score %> / 5</option><% } %>
+          </select>
+        </label>
+        <label>Problem solving
+          <select name="problemSolving">
+            <% for (let score = 1; score <= 5; score++) { %><option value="<%= score %>" <%= feedback?.competencies?.problemSolving === score ? 'selected' : '' %>><%= score %> / 5</option><% } %>
+          </select>
+        </label>
+        <label>Communication
+          <select name="communication">
+            <% for (let score = 1; score <= 5; score++) { %><option value="<%= score %>" <%= feedback?.competencies?.communication === score ? 'selected' : '' %>><%= score %> / 5</option><% } %>
+          </select>
+        </label>
+        <label>Practical application
+          <select name="practicalApplication">
+            <% for (let score = 1; score <= 5; score++) { %><option value="<%= score %>" <%= feedback?.competencies?.practicalApplication === score ? 'selected' : '' %>><%= score %> / 5</option><% } %>
+          </select>
+        </label>
+      </div>
+      <textarea name="notes" rows="3" placeholder="Qualitative notes for the student's record"><%= feedback?.feedback || '' %></textarea>
+      <button class="outline-btn inline-btn" type="submit">Save competency feedback <span>↗</span></button>
+    </form>
+  </details>
+  <% } %>
+  <% } %>
+</article>
+<% }) %>
+</div>
+</main>
+<%- include('../partials/foot') %>

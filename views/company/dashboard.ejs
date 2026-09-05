@@ -1,0 +1,37 @@
+<%- include('../partials/head', { title: 'Company overview' }) %><%- include('../partials/nav', { active: 'dashboard' }) %>
+<main class="workspace">
+<%- include('../partials/flash', { notice }) %>
+<header class="workspace-heading">
+  <div>
+    <span class="eyebrow">COMPANY WORKSPACE</span>
+    <h1>Build your next team.</h1>
+    <p class="page-lead">Turn skill signals into confident hiring decisions.</p>
+  </div>
+  <a class="primary-btn inline-btn" href="/company/jobs/new">Post opportunity <span>↗</span></a>
+</header>
+
+<div class="stats-row">
+  <div class="stat-card"><span>ACTIVE POSTED JOBS</span><strong><%= jobs.filter(job => job.status === 'open').length %></strong><small>Currently recruiting</small></div>
+  <div class="stat-card"><span>TOTAL APPLICANTS</span><strong><%= totalApplicants %></strong><small>Across all your roles</small></div>
+  <div class="stat-card"><span>CANDIDATES SELECTED</span><strong><%= selectedCount %></strong><small>Hired so far</small></div>
+  <div class="stat-card warm">
+    <span>TOP DEMANDED SKILL</span>
+    <strong><%= topSkill ? topSkill[0] : '—' %></strong>
+    <span class="metric-badge"><%= topSkill ? 'Listed in ' + topSkill[1] + ' open role' + (topSkill[1] === 1 ? '' : 's') : 'Post a role to see this' %></span>
+  </div>
+</div>
+
+<section class="content-card table-card">
+  <div class="card-heading"><div><span class="eyebrow">YOUR PIPELINE</span><h2>Open opportunities</h2></div><a class="text-btn" href="/company/candidates">Review candidates ↗</a></div>
+  <% if (!jobs.length) { %>
+    <p class="empty-state">Post your first opportunity to start meeting verified talent.</p>
+  <% } else { jobs.forEach(job => { %>
+  <div class="table-row">
+    <div><strong><%= job.title %></strong><small><%= job.requiredSkills.join(' · ') %></small></div>
+    <span class="application-status <%= job.status === 'open' ? 'progress' : 'declined' %>"><%= job.status %></span>
+    <a class="text-btn" href="/company/candidates">View talent</a>
+  </div>
+  <% }) } %>
+</section>
+</main>
+<%- include('../partials/foot') %>

@@ -1,0 +1,58 @@
+<%- include('../partials/head', { title: 'Students' }) %><%- include('../partials/nav', { active: 'students' }) %>
+<main class="workspace">
+<%- include('../partials/flash', { notice }) %>
+<header class="workspace-heading">
+  <div>
+    <span class="eyebrow">SKILL OVERVIEW</span>
+    <h1>Your students</h1>
+    <p class="page-lead">A read-only directory of what each student has learned, where they're best positioned, and how their applications are progressing.</p>
+  </div>
+</header>
+
+<div class="search-bar"><input type="text" id="studentSearch" placeholder="Search by name, major, or skill…"></div>
+
+<section class="content-card table-card" id="studentRoster">
+<% if (!roster.length) { %><p class="empty-state">No students are linked to this college yet.</p><% } %>
+<% roster.forEach(({ student, bestMatch, applicationCount, currentStatus }) => { %>
+<% const searchText = [student.name, student.profile?.education, ...(student.profile?.skills || []).map(skill => skill.name)].join(' ').toLowerCase(); %>
+<div class="roster-row" data-search="<%= searchText %>">
+  <div>
+    <strong><%= student.name %></strong>
+    <small><%= student.profile?.education || 'Major not added' %><% if (student.profile?.cgpa) { %> · CGPA <%= student.profile.cgpa %><% } %></small>
+    <div class="tag-list">
+      <% if (!student.profile?.skills?.length) { %><span class="missing">No skills listed</span><% } %>
+      <% (student.profile?.skills || []).slice(0, 6).forEach(skill => { %>
+      <span class="<%= skill.level === 'Advanced' ? 'matched' : (skill.level === 'Intermediate' ? 'partial' : 'compensating') %>"><%= skill.name %> · <%= skill.level %></span>
+      <% }) %>
+    </div>
+  </div>
+  <div class="roster-target">
+    <span class="eyebrow">TARGET ROLE</span>
+    <% if (bestMatch) { %>
+      <strong><%= bestMatch.job.title %></strong>
+      <% if (bestMatch.gap.missing.length) { %><small>Gap: <%= bestMatch.gap.missing.join(', ') %></small><% } else { %><small>No missing required skills</small><% } %>
+    <% } else { %>
+      <small>Add skills to see a target role</small>
+    <% } %>
+  </div>
+  <div class="roster-status">
+    <% if (currentStatus) { %>
+      <span class="application-status <%= currentStatus.status === 'selected' ? 'progress' : (currentStatus.status === 'rejected' ? 'declined' : 'interview') %>"><%= currentStatus.status %></span>
+      <small><%= applicationCount %> application<%= applicationCount === 1 ? '' : 's' %></small>
+    <% } else { %>
+      <small>No applications yet</small>
+    <% } %>
+  </div>
+</div>
+<% }) %>
+</section>
+</main>
+<script>
+  document.getElementById('studentSearch').addEventListener('input', function (event) {
+    var query = event.target.value.trim().toLowerCase();
+    document.querySelectorAll('#studentRoster .roster-row').forEach(function (row) {
+      row.style.display = row.dataset.search.includes(query) ? '' : 'none';
+    });
+  });
+</script>
+<%- include('../partials/foot') %>

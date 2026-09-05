@@ -1,0 +1,84 @@
+<%- include('../partials/head', { title: 'My profile' }) %><%- include('../partials/nav', { active: 'profile' }) %>
+<main class="workspace narrow">
+<%- include('../partials/flash', { notice }) %>
+<header class="workspace-heading">
+  <div>
+    <span class="eyebrow">YOUR PROFESSIONAL SIGNAL</span>
+    <h1>My profile</h1>
+    <p class="page-lead">Set an honest skill level for each skill — this is what powers your match score and gap breakdown on every opportunity.</p>
+  </div>
+</header>
+
+<form class="content-card profile-form" action="/student/profile" method="post">
+  <div class="form-grid">
+    <label>Education<input name="education" value="<%= user.profile?.education || '' %>" placeholder="B.Tech Computer Science"></label>
+    <label>College / university<select name="institutionId"><option value="">Select institution</option><% institutions.forEach(institution => { %><option value="<%= institution.id %>" <%= String(user.profile?.institutionId || '') === String(institution.id) ? 'selected' : '' %>><%= institution.name %></option><% }) %></select><small>Legacy college names are still accepted through the text field below.</small></label>
+    <label>Legacy college name<input name="college" value="<%= user.profile?.college || '' %>" placeholder="Your institution"></label>
+    <label>CGPA<input type="number" name="cgpa" min="0" max="10" step="0.01" value="<%= user.profile?.cgpa || '' %>" placeholder="8.5"></label>
+  </div>
+
+  <div>
+    <label>Skills</label>
+    <div id="skillsEditor">
+      <% const existingSkills = (user.profile?.skills && user.profile.skills.length) ? user.profile.skills : [{ name: '', level: 'Beginner' }]; %>
+      <% existingSkills.forEach(skill => { %>
+      <div class="skill-editor-row">
+        <input name="skillName" value="<%= skill.name || '' %>" placeholder="e.g. Python">
+        <select name="skillLevel">
+          <% skillLevels.forEach(level => { %><option value="<%= level %>" <%= skill.level === level ? 'selected' : '' %>><%= level %></option><% }) %>
+        </select>
+        <button type="button" class="remove-skill-btn" onclick="this.closest('.skill-editor-row').remove()">Remove</button>
+      </div>
+      <% }) %>
+    </div>
+    <button type="button" class="outline-btn add-skill-btn" id="addSkillBtn">+ Add another skill</button>
+  </div>
+
+  <label>About your work<textarea name="bio" rows="5" placeholder="Tell companies what you build and what you want to learn."><%= user.profile?.bio || '' %></textarea></label>
+
+  <label>Resume summary <small>this prototype doesn't support file uploads yet — paste a short summary instead</small>
+    <textarea name="resumeSummary" rows="4" placeholder="Final-year CS student with two internships in..."><%= user.profile?.resumeSummary || '' %></textarea>
+  </label>
+
+  <label>Projects <small>one per line — Title | What you built | Skills used, comma separated</small>
+    <textarea name="projects" rows="4" placeholder="Portfolio site | Built a personal portfolio with React, deployed on Vercel | React, CSS, Git"><%= (user.profile?.projects || []).map(p => [p.title, p.description, (p.skills || []).join(', ')].join(' | ')).join('\n') %></textarea>
+  </label>
+
+  <label>Certifications <small>one per line — Name | Issuer | Year</small>
+    <textarea name="certifications" rows="3" placeholder="AWS Cloud Practitioner | Amazon Web Services | 2025"><%= (user.profile?.certifications || []).map(c => [c.name, c.issuer, c.year || ''].join(' | ')).join('\n') %></textarea>
+  </label>
+
+  <button class="primary-btn inline-btn" type="submit">Save profile <span>↗</span></button>
+</form>
+
+<template id="skillRowTemplate">
+  <div class="skill-editor-row">
+    <input name="skillName" placeholder="e.g. Python">
+    <select name="skillLevel">
+      <% skillLevels.forEach(level => { %><option value="<%= level %>"><%= level %></option><% }) %>
+    </select>
+    <button type="button" class="remove-skill-btn" onclick="this.closest('.skill-editor-row').remove()">Remove</button>
+  </div>
+</template>
+
+<script>
+  document.getElementById('addSkillBtn').addEventListener('click', function () {
+    var row = document.getElementById('skillRowTemplate').content.cloneNode(true);
+    document.getElementById('skillsEditor').appendChild(row);
+  });
+</script>
+
+<section class="content-card">
+  <div class="card-heading"><div><span class="eyebrow">EMPLOYER-VALIDATED EVIDENCE</span><h2>Competency signal from completed internships</h2></div></div>
+  <% if (validatedCompetencies && Object.keys(validatedCompetencies).some(key => validatedCompetencies[key] !== null)) { %>
+    <div class="competency-ratings">
+      <% [['technicalSkills','Technical skills'],['problemSolving','Problem solving'],['communication','Communication'],['practicalApplication','Practical application']].forEach(([key,label]) => { if (validatedCompetencies[key] !== null) { %>
+      <div class="rating-row"><span class="rating-label"><%= label %></span><span class="rating-bar"><i style="width:<%= (validatedCompetencies[key] / 5) * 100 %>%"></i></span><span class="rating-score"><%= validatedCompetencies[key] %>/5</span></div>
+      <% } }) %>
+    </div>
+    <p class="gap-narrative">These scores are derived from employer evaluations after internships are marked completed; they are evidence, not self-entered skill claims.</p>
+  <% } else { %><p class="empty-state">Complete an internship to begin building an employer-validated competency record.</p><% } %>
+</section>
+
+</main>
+<%- include('../partials/foot') %>

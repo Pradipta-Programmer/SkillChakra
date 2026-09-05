@@ -1,0 +1,12 @@
+<nav class="site-nav">
+    <a class="brand" href="/<%= user ? user.role : '' %>/dashboard"><span class="brand-mark">S</span><span>SkillChakra</span></a>
+    <% if (user) { %>
+        <div class="nav-links">
+            <a class="<%= active === 'dashboard' ? 'active' : '' %>" href="/<%= user.role %>/dashboard">Overview</a>
+            <% if (user.role === 'student') { %><a class="<%= active === 'opportunities' ? 'active' : '' %>" href="/student/opportunities">Opportunities</a><a class="<%= active === 'feedback' ? 'active' : '' %>" href="/student/feedback">Feedback</a><a class="<%= active === 'profile' ? 'active' : '' %>" href="/student/profile">My profile</a><% } %>
+            <% if (user.role === 'company') { %><a class="<%= active === 'candidates' ? 'active' : '' %>" href="/company/candidates">Candidates</a><a class="<%= active === 'new-job' ? 'active' : '' %>" href="/company/jobs/new">Post opportunity</a><% } %>
+            <% if (user.role === 'college') { %><a class="<%= active === 'students' ? 'active' : '' %>" href="/college/students">Students</a><% } %>
+        </div>
+        <div class="nav-user"><span class="avatar"><%= user.name.slice(0, 2).toUpperCase() %></span><span><strong><%= user.name %></strong><small><%= roleLabel %></small></span><form action="/logout" method="post"><button type="submit" aria-label="Sign out">↗</button></form></div>
+    <% } %>
+</nav>
