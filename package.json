@@ -1,0 +1,29 @@
+{
+  "name": "sih2026",
+  "version": "1.0.0",
+  "description": "SkillChakra connects students, colleges, and companies through trusted career workflows.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node tests/unit/skillEngine.test.js && node tests/unit/modelSmoke.test.js && node tests/unit/ejsSmoke.test.js && node --check server.js && node --check config/passport.js && node --check routes/auth.js && node --check routes/pages.js && node --check routes/protected.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "connect-mongo": "^6.0.0",
+    "dotenv": "^17.4.2",
+    "ejs": "^6.0.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "express-session": "^1.19.0",
+    "helmet": "^8.3.0",
+    "mongoose": "^9.9.4",
+    "morgan": "^1.12.0",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0"
+  }
+}
