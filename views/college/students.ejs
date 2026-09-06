@@ -47,7 +47,7 @@
 <% }) %>
 </section>
 </main>
-<script>
+<script nonce="<%= nonce %>">
   document.getElementById('studentSearch').addEventListener('input', function (event) {
     var query = event.target.value.trim().toLowerCase();
     document.querySelectorAll('#studentRoster .roster-row').forEach(function (row) {

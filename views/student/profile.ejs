@@ -27,7 +27,7 @@
         <select name="skillLevel">
           <% skillLevels.forEach(level => { %><option value="<%= level %>" <%= skill.level === level ? 'selected' : '' %>><%= level %></option><% }) %>
         </select>
-        <button type="button" class="remove-skill-btn" onclick="this.closest('.skill-editor-row').remove()">Remove</button>
+        <button type="button" class="remove-skill-btn" data-action="remove-skill">Remove</button>
       </div>
       <% }) %>
     </div>
@@ -57,14 +57,23 @@
     <select name="skillLevel">
       <% skillLevels.forEach(level => { %><option value="<%= level %>"><%= level %></option><% }) %>
     </select>
-    <button type="button" class="remove-skill-btn" onclick="this.closest('.skill-editor-row').remove()">Remove</button>
+    <button type="button" class="remove-skill-btn" data-action="remove-skill">Remove</button>
   </div>
 </template>
 
-<script>
+<script nonce="<%= nonce %>">
   document.getElementById('addSkillBtn').addEventListener('click', function () {
     var row = document.getElementById('skillRowTemplate').content.cloneNode(true);
     document.getElementById('skillsEditor').appendChild(row);
+  });
+
+  document.addEventListener('click', function (e) {
+    if (e.target.matches('[data-action="remove-skill"]')) {
+      var row = e.target.closest('.skill-editor-row');
+      if (row) {
+        row.remove();
+      }
+    }
   });
 </script>
 

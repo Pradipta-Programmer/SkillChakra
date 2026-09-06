@@ -16,6 +16,8 @@ const userSchema = new mongoose.Schema({
         education: { type: String, trim: true },
         college: { type: String, trim: true },
         institutionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Institution', index: true },
+        // Added for identity gating & institutional verification
+        verified: { type: Boolean, default: false },
         cgpa: { type: Number, min: 0, max: 10 },
         bio: { type: String, maxlength: 1000 },
         companyDescription: { type: String, maxlength: 1000 },
@@ -43,5 +45,9 @@ const userSchema = new mongoose.Schema({
     },
     createdAt: { type: Date, default: Date.now }
 });
+
+// Added compound indexes for fast, unblocked student roster queries
+userSchema.index({ role: 1, 'profile.institutionId': 1 });
+userSchema.index({ role: 1, 'profile.college': 1 });
 
 module.exports = mongoose.model('User', userSchema);

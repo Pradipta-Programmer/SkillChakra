@@ -19,12 +19,43 @@ const SKILL_TAXONOMY = [
     { canonicalName: 'Problem Solving', category: 'Professional', aliases: ['problem solving', 'problem-solving'], relatedSkills: [] }
 ];
 
-const aliasToCanonical = new Map();
-const canonicalMap = new Map();
-SKILL_TAXONOMY.forEach((skill) => {
-    canonicalMap.set(skill.canonicalName.toLowerCase(), skill);
-    [skill.canonicalName, ...(skill.aliases || [])].forEach((alias) => aliasToCanonical.set(String(alias).trim().toLowerCase(), skill.canonicalName));
-});
+let aliasToCanonical = new Map();
+let canonicalMap = new Map();
+
+function buildMaps(entries) {
+    const aliasMap = new Map();
+    const canonMap = new Map();
+    entries.forEach((skill) => {
+        canonMap.set(skill.canonicalName.toLowerCase(), skill);
+        [skill.canonicalName, ...(skill.aliases || [])].forEach((alias) => 
+            aliasMap.set(String(alias).trim().toLowerCase(), skill.canonicalName)
+        );
+    });
+    return { aliasMap, canonMap };
+}
+
+// Initialize default maps from the static array
+({ aliasMap: aliasToCanonical, canonMap: canonicalMap } = buildMaps(SKILL_TAXONOMY));
+
+/**
+ * Called once at boot once MongoDB is connected.
+ * Merges DB-authored skills on top of the static defaults without deleting either.
+ */
+async function hydrateTaxonomyFromDb(SkillModel) {
+    try {
+        const dbSkills = await SkillModel.find().lean();
+        if (!dbSkills.length) return;
+        
+        const merged = new Map(SKILL_TAXONOMY.map((s) => [s.canonicalName.toLowerCase(), s]));
+        dbSkills.forEach((s) => merged.set(s.canonicalName.toLowerCase(), s));
+        
+        const built = buildMaps([...merged.values()]);
+        aliasToCanonical = built.aliasMap;
+        canonicalMap = built.canonMap;
+    } catch (error) {
+        console.error('Failed to hydrate taxonomy from DB, using fallback static taxonomy:', error.message);
+    }
+}
 
 function normalizeSkillName(value) {
     const raw = String(value || '').trim();
@@ -35,4 +66,9 @@ function getSkillDefinition(value) {
     return canonicalMap.get(normalizeSkillName(value).toLowerCase()) || null;
 }
 
-module.exports = { SKILL_TAXONOMY, normalizeSkillName, getSkillDefinition };
+module.exports = { 
+    SKILL_TAXONOMY, 
+    normalizeSkillName, 
+    getSkillDefinition, 
+    hydrateTaxonomyFromDb 
+};
