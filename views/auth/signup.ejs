@@ -1,3 +1,47 @@
 <%- include('../partials/head', { title }) %>
-<main class="auth-page"><section class="auth-card"><a class="brand" href="/"><span class="brand-mark">S</span><span>SkillChakra</span></a><span class="eyebrow">JOIN THE NETWORK</span><h1>Build your signal.</h1><p class="page-lead">Create the profile that helps the right people find you.</p><%- include('../partials/flash', { message }) %><form class="stack-form" action="/signup" method="post"><label>Full name<input type="text" name="name" placeholder="Your name or organization" required></label><label>Email<input type="email" name="email" placeholder="you@example.com" required></label><label>Password<input type="password" name="password" minlength="8" placeholder="At least 8 characters" required></label><label>Account type<select name="role" required><option value="student" <%= selectedRole === 'student' ? 'selected' : '' %>>Student</option><option value="college" <%= selectedRole === 'college' ? 'selected' : '' %>>College admin</option><option value="company" <%= selectedRole === 'company' ? 'selected' : '' %>>Company</option></select></label><button class="primary-btn" type="submit">Create account <span>↗</span></button></form><p class="form-note">Already have an account? <a href="/login">Sign in</a></p></section><aside class="auth-aside"><span class="eyebrow">THREE SIDES. ONE SIGNAL.</span><h2>Opportunity grows<br><em>when trust travels.</em></h2><p>Bring your skills, validation, and ambition into one shared career network.</p></aside></main>
+<main class="auth-page">
+<section class="auth-card">
+  <a class="brand" href="/"><span class="brand-mark">S</span><span>SkillChakra</span></a>
+  <span class="eyebrow">JOIN THE NETWORK</span>
+  <h1>Build your signal.</h1>
+  <p class="page-lead">Create the profile that helps the right people find you.</p>
+  <%- include('../partials/flash', { message }) %>
+  <form class="stack-form" action="/signup" method="post">
+    <label>Full name<input type="text" name="name" placeholder="Your name" required></label>
+    <label>Email<input type="email" name="email" placeholder="you@example.com" required></label>
+    <label>Password<input type="password" name="password" minlength="8" placeholder="At least 8 characters" required></label>
+    <label>Account type
+      <select name="role" id="roleSelect" required>
+        <option value="student" <%= selectedRole === 'student' ? 'selected' : '' %>>Student</option>
+        <option value="college" <%= selectedRole === 'college' ? 'selected' : '' %>>College admin</option>
+        <option value="company" <%= selectedRole === 'company' ? 'selected' : '' %>>Company</option>
+      </select>
+    </label>
+    <label id="institutionNameField">College / institution name<input type="text" name="institutionName" placeholder="e.g. Stanford University"></label>
+    <label id="collegeField">College / university <small>(optional — you can add this later)</small><input type="text" name="college" placeholder="e.g. Stanford University"></label>
+    <button class="primary-btn" type="submit">Create account <span>↗</span></button>
+  </form>
+  <p class="form-note">Already have an account? <a href="/login">Sign in</a></p>
+</section>
+<aside class="auth-aside"><span class="eyebrow">THREE SIDES. ONE SIGNAL.</span><h2>Opportunity grows<br><em>when trust travels.</em></h2><p>Bring your skills, validation, and ambition into one shared career network.</p></aside>
+</main>
+<script nonce="<%= nonce %>">
+(function () {
+  var roleSelect = document.getElementById('roleSelect');
+  var institutionField = document.getElementById('institutionNameField');
+  var institutionInput = institutionField.querySelector('input');
+  var collegeField = document.getElementById('collegeField');
+
+  function syncFields() {
+    var isCollege = roleSelect.value === 'college';
+    var isStudent = roleSelect.value === 'student';
+    institutionField.style.display = isCollege ? '' : 'none';
+    institutionInput.required = isCollege;
+    collegeField.style.display = isStudent ? '' : 'none';
+  }
+
+  roleSelect.addEventListener('change', syncFields);
+  syncFields();
+})();
+</script>
 <%- include('../partials/foot') %>

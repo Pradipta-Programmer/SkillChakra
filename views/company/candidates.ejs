@@ -13,7 +13,7 @@
 <% if (!candidates.length) { %>
   <section class="content-card empty-state">Applications will appear here when students apply to your roles.</section>
 <% } %>
-<% candidates.forEach(({ application, gap, feedback }) => { %>
+<% candidates.forEach(({ application, gap, feedback, internship }) => { %>
 <article class="content-card candidate-card">
   <div class="candidate-header">
     <div class="avatar large"><%= application.student.name.slice(0, 2).toUpperCase() %></div>

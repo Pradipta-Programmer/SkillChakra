@@ -7,6 +7,6 @@
             <% if (user.role === 'company') { %><a class="<%= active === 'candidates' ? 'active' : '' %>" href="/company/candidates">Candidates</a><a class="<%= active === 'new-job' ? 'active' : '' %>" href="/company/jobs/new">Post opportunity</a><% } %>
             <% if (user.role === 'college') { %><a class="<%= active === 'students' ? 'active' : '' %>" href="/college/students">Students</a><% } %>
         </div>
-        <div class="nav-user"><span class="avatar"><%= user.name.slice(0, 2).toUpperCase() %></span><span><strong><%= user.name %></strong><small><%= roleLabel %></small></span><form action="/logout" method="post"><button type="submit" aria-label="Sign out">↗</button></form></div>
+        <div class="nav-user"><span class="avatar"><%= user.name.slice(0, 2).toUpperCase() %></span><span><strong><%= user.name %></strong><small><%= (user.role === 'college' && user.profile?.college) ? roleLabel + ' · ' + user.profile.college : roleLabel %></small></span><form action="/logout" method="post"><button type="submit" aria-label="Sign out">↗</button></form></div>
     <% } %>
 </nav>

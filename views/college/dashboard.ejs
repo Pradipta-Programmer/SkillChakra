@@ -3,7 +3,7 @@
 <%- include('../partials/flash', { notice }) %>
 <header class="workspace-heading">
   <div>
-    <span class="eyebrow">COLLEGE WORKSPACE</span>
+    <span class="eyebrow">COLLEGE WORKSPACE · <%= user.profile?.college || 'Institution not set' %></span>
     <h1>Skill intelligence.</h1>
     <p class="page-lead">See exactly where your students stand against real industry demand — and where employer feedback says they landed.</p>
   </div>

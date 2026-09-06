@@ -8,6 +8,7 @@ const Feedback = require('../models/Feedback');
 const Internship = require('../models/Internship');
 const Institution = require('../models/Institution');
 const { SKILL_LEVELS, computeSkillGap, rankJobsForStudent, computeInstitutionSkillMatrix, aggregateCompetencyFeedback } = require('../utils/skillEngine');
+const { escapeRegExp, findOrCreateInstitution } = require('../utils/institutions');
 
 const router = express.Router();
 const roles = { student: 'Student', college: 'College admin', company: 'Company' };
@@ -37,10 +38,23 @@ router.post('/signup', requireDatabase, async (req, res, next) => {
         if (await User.exists({ email: normalizedEmail })) return res.redirect(`/login?message=${encodeURIComponent('An account with this email already exists.')}`);
         let profile = {};
         if (role === 'college') {
-            let institution = await Institution.findOne({ name: name.trim() });
-            if (!institution) institution = await Institution.create({ name: name.trim(), shortName: name.trim(), verified: false });
+            // A dedicated field, not the admin's own name, is what identifies the institution —
+            // otherwise two different fields (personal name vs. institution name) collapse into one
+            // and there's no separate record of which college this admin actually represents.
+            const institutionName = String(req.body.institutionName || '').trim();
+            if (!institutionName) return res.redirect(`/signup?role=college&message=${encodeURIComponent('Enter the name of the college or institution you administer.')}`);
+            const institution = await findOrCreateInstitution(institutionName);
             profile.institutionId = institution.id;
             profile.college = institution.name;
+        }
+        if (role === 'student') {
+            // Optional at signup — students can still set or change this later from their profile page.
+            const collegeName = String(req.body.college || '').trim();
+            if (collegeName) {
+                const institution = await findOrCreateInstitution(collegeName);
+                profile.institutionId = institution.id;
+                profile.college = institution.name;
+            }
         }
         const user = await User.create({ name: name.trim(), email: normalizedEmail, passwordHash: await bcrypt.hash(password, 12), role, profile });
         req.logIn(user, (error) => error ? next(error) : res.redirect(`/${role}/dashboard`));
@@ -93,8 +107,7 @@ router.post('/student/profile', requirePageAuth, requirePageRole('student'), asy
             else collegeName = institution.name;
         }
         if (!institutionId && collegeName) {
-            let institution = await Institution.findOne({ name: new RegExp(`^${escapeRegExp(collegeName)}$`, 'i') });
-            if (!institution) institution = await Institution.create({ name: collegeName, shortName: collegeName, verified: false });
+            const institution = await findOrCreateInstitution(collegeName);
             institutionId = institution.id;
             collegeName = institution.name;
         }
@@ -308,8 +321,6 @@ async function findInstitutionStudents(collegeUser) {
     if (institutionId) conditions.unshift({ 'profile.institutionId': institutionId });
     return User.find({ role: 'student', $or: conditions }).sort('name');
 }
-
-function escapeRegExp(value) { return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
 function parseList(value) { return String(value || '').split(',').map((item) => item.trim()).filter(Boolean); }
 
