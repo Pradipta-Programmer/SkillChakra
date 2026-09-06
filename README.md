@@ -2,7 +2,10 @@
 
 SkillChakra is an Express, MongoDB, and Passport.js prototype connecting students, colleges, and companies.
 
+[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge&logo=vercel)](https://skillchakra-mkde.onrender.com)
+[![Status](https://img.shields.io/badge/Status-Production%20Hardened-blue?style=for-the-badge)]()
 
+> A transparent, rules-based compatibility engine and closed-loop collaboration platform bridging the gap between academic institutions and industry recruiters.
 
 ## SkillChakra architecture notes
 
